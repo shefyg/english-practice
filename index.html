@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UNIT CHECK 1 — תרגול אנגלית</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Varela+Round&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #fdf8ef;
+            --ink: #2b2420;
+            --muted: #6b5f57;
+            --card: #ffffff;
+            --accent: #e0503c;
+            --teal: #1f7a70;
+            --good: #1e7d32;
+            --good-bg: #e3f4e5;
+            --bad: #b3261e;
+            --bad-bg: #fde4e1;
+            --warn-bg: #fff1c9;
+            --line: #e8dfd2;
+            --shadow: 0 6px 18px rgba(60, 40, 20, .12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            background-image: radial-gradient(rgba(0, 0, 0, .035) 1px, transparent 1px);
+            background-size: 18px 18px;
+            color: var(--ink);
+            font-family: "Varela Round", system-ui, Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        .wrap { max-width: 620px; margin: 0 auto; padding: 20px 16px 48px; }
+
+        h1 {
+            font-family: "Secular One", sans-serif;
+            text-align: center;
+            font-size: clamp(2rem, 7vw, 2.8rem);
+            margin: 8px 0 4px;
+        }
+
+        h1 span { color: var(--accent); }
+        h2 { font-family: "Secular One", sans-serif; font-size: 1.3rem; margin: 24px 0 10px; }
+        .center { text-align: center; }
+        .muted { color: var(--muted); }
+        [hidden] { display: none !important; }
+
+        button { font: inherit; cursor: pointer; }
+
+        button:focus-visible, input:focus-visible {
+            outline: 3px solid var(--teal);
+            outline-offset: 2px;
+        }
+
+        /* מעבר בין תרגול לבוחן */
+        .switch {
+            display: flex;
+            background: var(--card);
+            border-radius: 999px;
+            padding: 4px;
+            box-shadow: var(--shadow);
+            margin: 18px auto 6px;
+            max-width: 340px;
+        }
+
+        .switch button {
+            flex: 1;
+            border: 0;
+            background: transparent;
+            padding: 10px;
+            border-radius: 999px;
+            font-size: 1.05rem;
+            color: var(--muted);
+        }
+
+        .switch button[aria-pressed="true"] { background: var(--teal); color: #fff; }
+
+        .games { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .game {
+            border: 0;
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 16px 12px;
+            text-align: center;
+            transition: transform .15s ease;
+        }
+
+        .game:hover { transform: translateY(-3px); }
+        .game .ico { font-size: 2rem; display: block; }
+        .game b { display: block; font-size: 1.05rem; margin: 4px 0 2px; }
+        .game small { color: var(--muted); }
+        .game.wide { grid-column: 1 / -1; }
+
+        /* מד מילים */
+        .words { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+
+        .words li {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            align-items: center;
+            background: var(--card);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: .95rem;
+        }
+
+        .words .en { direction: ltr; text-align: left; font-weight: bold; }
+        .bar { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; }
+        .bar i { display: block; height: 100%; border-radius: 99px; }
+
+        .reset {
+            border: 0;
+            background: none;
+            color: var(--muted);
+            text-decoration: underline;
+            margin-top: 10px;
+        }
+
+        /* מתג פוקוס */
+        .focus {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 4px auto 14px;
+            border: 0;
+            background: none;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .focus .track {
+            width: 46px;
+            height: 26px;
+            border-radius: 99px;
+            background: var(--line);
+            position: relative;
+            transition: background .2s;
+        }
+
+        .focus .track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+            transition: right .2s;
+        }
+
+        .focus[aria-checked="true"] .track { background: var(--accent); }
+        .focus[aria-checked="true"] .track::after { right: 23px; }
+
+        /* צבע הקושי: נקודה לכל סוג שאלה */
+        .dots { display: flex; gap: 5px; justify-content: flex-end; }
+        .dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+        .c-red { background: #d9534f; }
+        .c-yellow { background: #e8a33d; }
+        .c-green { background: #2e9e4f; }
+        .c-new { background: transparent; box-shadow: inset 0 0 0 2px #e8a33d; }
+        .dots-legend { font-size: .85rem; color: var(--muted); text-align: center; margin: 0 0 8px; }
+        .dots-legend .dot { vertical-align: middle; margin-inline: 3px 2px; }
+
+        /* מסך משחק */
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back {
+            border: 0;
+            background: var(--card);
+            border-radius: 999px;
+            padding: 8px 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .tag {
+            background: var(--card);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: .9rem;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 24px 18px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .prompt-label { color: var(--muted); margin: 0 0 6px; }
+
+        .word {
+            font-family: "Secular One", sans-serif;
+            font-size: clamp(2rem, 9vw, 2.8rem);
+            margin: 0 0 16px;
+            word-break: break-word;
+        }
+
+        .word.en { direction: ltr; }
+
+        .answer {
+            width: 100%;
+            font: inherit;
+            font-size: 1.5rem;
+            padding: 12px 14px;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            text-align: center;
+            background: #fffdf9;
+        }
+
+        .answer.en { direction: ltr; }
+
+        .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+        .btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 22px;
+            font-size: 1.1rem;
+            background: var(--teal);
+            color: #fff;
+            min-width: 120px;
+        }
+
+        .btn.light { background: #efe7da; color: var(--ink); }
+        .btn.good { background: var(--good); }
+        .btn.bad { background: var(--bad); }
+
+        .speak {
+            border: 0;
+            background: #efe7da;
+            border-radius: 999px;
+            width: 64px;
+            height: 64px;
+            font-size: 1.8rem;
+        }
+
+        .feedback { margin-top: 18px; border-radius: 12px; padding: 14px; }
+        .feedback.ok { background: var(--good-bg); }
+        .feedback.no { background: var(--bad-bg); }
+        .feedback h3 { margin: 0 0 8px; font-size: 1.3rem; }
+        .diff-label { font-size: .9rem; color: var(--muted); margin: 8px 0 2px; }
+
+        .diff {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+        }
+
+        .diff.en { direction: ltr; }
+        .diff span { padding: 0 1px; border-radius: 4px; }
+        .d-ok { color: var(--good); }
+        .d-wrong { background: var(--bad); color: #fff; }
+        .d-extra { color: var(--bad); text-decoration: line-through; }
+        .d-missing { background: var(--warn-bg); color: var(--ink); outline: 2px dashed #c79a00; }
+        .d-fix { background: var(--warn-bg); color: var(--ink); }
+
+        .meaning { margin-top: 10px; font-size: 1.1rem; }
+
+        .progress { height: 8px; background: var(--line); border-radius: 99px; margin-top: 14px; overflow: hidden; }
+        .progress i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+
+        /* סיכום בוחן */
+        .score {
+            font-family: "Secular One", sans-serif;
+            font-size: 3.4rem;
+            margin: 0;
+        }
+
+        .mist { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; text-align: start; }
+        .mist li { background: var(--bad-bg); border-radius: 12px; padding: 10px 12px; }
+
+        .legend { font-size: .85rem; color: var(--muted); margin-top: 10px; }
+        .legend span { display: inline-block; margin-inline-end: 10px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- מסך בית -->
+    <section id="home">
+        <h1>UNIT CHECK <span>1</span></h1>
+        <p class="center muted" id="countLine"></p>
+
+        <div class="switch" id="partSwitch" role="group" aria-label="איזה חלק">
+            <button type="button" data-part="1" aria-pressed="true">חלקים 1–3</button>
+            <button type="button" data-part="2" aria-pressed="false">חלקים 4–5</button>
+            <button type="button" data-part="all" aria-pressed="false">הכול</button>
+        </div>
+
+        <div class="switch" id="modeSwitch" role="group" aria-label="סוג אימון">
+            <button type="button" data-mode="practice" aria-pressed="true">🏋️ תרגול</button>
+            <button type="button" data-mode="quiz" aria-pressed="false">📝 בוחן</button>
+        </div>
+        <p class="center muted" id="modeHint"></p>
+        <button class="focus" type="button" role="switch" aria-checked="false" id="focusBtn">
+            <span class="track" aria-hidden="true"></span>
+            <span>🎯 פוקוס על המילים הקשות</span>
+        </button>
+
+        <div class="games">
+            <button class="game" type="button" data-game="he2en">
+                <span class="ico">⌨️</span><b>עברית ← אנגלית</b><small>רואה בעברית, כותבת באנגלית</small>
+            </button>
+            <button class="game" type="button" data-game="en2he">
+                <span class="ico">✏️</span><b>אנגלית ← עברית</b><small>רואה באנגלית, כותבת בעברית</small>
+            </button>
+            <button class="game" type="button" data-game="read">
+                <span class="ico">🗣️</span><b>הקראה</b><small>קוראת בקול, שומעת, ומסמנת</small>
+            </button>
+            <button class="game" type="button" data-game="listen">
+                <span class="ico">🎧</span><b>הכתבה</b><small>שומעת באנגלית, כותבת באנגלית</small>
+            </button>
+            <button class="game" type="button" data-game="helisten" hidden>
+                <span class="ico">👂</span><b>הכתבה מעברית</b><small>שומעת בעברית, כותבת באנגלית</small>
+            </button>
+            <button class="game wide" type="button" data-game="mix" id="mixCard">
+                <span class="ico">🎲</span><b>הכל מעורבב</b><small>כל סוגי השאלות יחד</small>
+            </button>
+        </div>
+
+        <h2>איך הולך עם כל מילה</h2>
+        <p class="dots-legend" id="dotsLegend"></p>
+        <ul class="words" id="wordList"></ul>
+        <div class="center">
+            <button class="reset" type="button" id="resetBtn">לאפס את הזיכרון ולהתחיל מחדש</button>
+        </div>
+    </section>
+
+    <!-- מסך משחק -->
+    <section id="play" hidden>
+        <div class="top">
+            <button class="back" type="button" id="backBtn">→ חזרה</button>
+            <span class="tag" id="playTag"></span>
+        </div>
+        <div class="progress" id="quizBar" hidden><i></i></div>
+
+        <div class="card" id="qCard">
+            <p class="prompt-label" id="qLabel"></p>
+            <p class="word" id="qWord"></p>
+
+            <div id="speakRow" class="row" hidden>
+                <button class="speak" type="button" id="speakBtn" aria-label="להשמיע את המילה">🔊</button>
+                <button class="speak" type="button" id="slowBtn" aria-label="להשמיע לאט">🐢</button>
+            </div>
+            <button class="reset" type="button" id="revealBtn" hidden>לא הבנתי מה נאמר, תראי לי</button>
+
+            <form id="typeForm" autocomplete="off">
+                <label class="prompt-label" for="answer" id="answerLabel"></label>
+                <input class="answer" id="answer" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <div class="row">
+                    <button class="btn" type="submit" id="checkBtn">בדיקה ✓</button>
+                </div>
+            </form>
+
+            <div id="readBox" hidden>
+                <p class="muted" id="readHint">קראי את המילה בקול, ואז לחצי 🔊 כדי לשמוע אם צדקת</p>
+                <p class="meaning" id="readMeaning" hidden></p>
+                <div class="row">
+                    <button class="btn good" type="button" id="readGood">😊 הצלחתי</button>
+                    <button class="btn bad" type="button" id="readBad">😕 לא כל כך</button>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback" hidden aria-live="polite"></div>
+
+            <div class="row" id="nextRow" hidden>
+                <button class="btn" type="button" id="nextBtn">הבאה ←</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- סיכום בוחן -->
+    <section id="summary" hidden>
+        <div class="card">
+            <p class="muted">תוצאת הבוחן</p>
+            <p class="score" id="score"></p>
+            <p id="scoreMsg"></p>
+            <ul class="mist" id="mistakes"></ul>
+            <div class="row">
+                <button class="btn" type="button" id="practiceMistakes">לתרגל את הטעויות</button>
+                <button class="btn light" type="button" id="homeBtn">למסך הבית</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// ===== המילים: כאן מוסיפים או משנים מילים לבוחן הבא =====
+// say = איך להגות בעברית, עם ניקוד. בלי ניקוד הקול עלול לטעות (למשל "בוחן" יצא "חן")
+const WORDS = [
+    // ===== Parts 1–3 =====
+    { en: "about",                 part: 1, he: ["על", "בערך", "אודות"],                  say: "עַל" },
+    { en: "afraid",                part: 1, he: ["מפחד", "פוחד", "מפחדת", "חושש"],        say: "מְפַחֵד" },
+    { en: "anything",              part: 1, he: ["משהו", "כל דבר", "כלום"],               say: "מַשֶׁהוּ" },
+    { en: "arrive",                part: 1, he: ["להגיע", "מגיע"],                        say: "לְהַגִיעַ" },
+    { en: "catch (a train)",       part: 1, he: ["לתפוס רכבת", "לתפוס"],                  say: "לִתְפּוֹס רַכֶּבֶת" },
+    { en: "clever",                part: 1, he: ["חכם", "חכמה", "פיקח"],                  say: "חָכָם" },
+    { en: "comfortable",           part: 1, he: ["נוח", "נוחה"],                          say: "נוֹחַ" },
+    { en: "cost",                  part: 1, he: ["לעלות (כסף)", "לעלות", "עולה", "מחיר"],     say: "לַעֲלוֹת כֶּסֶף" },
+    { en: "Dear ...",              part: 1, he: ["יקר", "יקרה", "לכבוד"],                 say: "יָקָר" },
+    { en: "decide",                part: 1, he: ["להחליט", "מחליט"],                      say: "לְהַחְלִיט" },
+    { en: "directly",              part: 1, he: ["ישירות", "ישר"],                        say: "יְשִׁירוֹת" },
+    { en: "famous",                part: 1, he: ["מפורסם", "מפורסמת"],                    say: "מְפוּרְסָם" },
+    { en: "get off",               part: 1, he: ["לרדת", "לרדת מ"],                       say: "לָרֶדֶת" },
+    { en: "get on",                part: 1, he: ["לעלות (על רכבת)", "לעלות על", "לעלות"],      say: "לַעֲלוֹת עַל רַכֶּבֶת" },
+    { en: "glad",                  part: 1, he: ["שמח", "שמחה"],                          say: "שָׂמֵחַ" },
+    { en: "hit",                   part: 1, he: ["להכות", "מכה", "לפגוע"],                say: "לְהַכּוֹת" },
+    { en: "island",                part: 1, he: ["אי"],                                   say: "אִי" },
+    { en: "leave",                 part: 1, he: ["לעזוב", "עוזב", "לצאת"],                say: "לַעֲזוֹב" },
+    { en: "love",                  part: 1, he: ["אהבה", "לאהוב", "אוהב"],                say: "אַהֲבָה" },
+    { en: "million",               part: 1, he: ["מיליון"],                               say: "מִילְיוֹן" },
+    { en: "mountain",              part: 1, he: ["הר"],                                   say: "הַר" },
+    { en: "nature",                part: 1, he: ["טבע"],                                  say: "טֶבַע" },
+    { en: "order",                 part: 1, he: ["להזמין (במסעדה)", "להזמין", "הזמנה", "סדר", "פקודה"], say: "לְהַזְמִין בְּמִסְעָדָה" },
+    { en: "pick",                  part: 1, he: ["לבחור", "לקטוף"],                       say: "לִבְחוֹר" },
+    { en: "popular",               part: 1, he: ["פופולרי", "פופולארי", "אהוב"],          say: "פּוֹפּוּלָרִי" },
+    { en: "reason",                part: 1, he: ["סיבה"],                                 say: "סִיבָּה" },
+    { en: "return",                part: 1, he: ["לחזור", "חוזר", "להחזיר"],              say: "לַחֲזוֹר" },
+    { en: "saw",                   part: 1, he: ["ראה", "ראיתי", "מסור"],                 say: "רָאָה" },
+    { en: "several",               part: 1, he: ["כמה", "אחדים", "מספר"],                 say: "כַּמָה" },
+    { en: "still",                 part: 1, he: ["עדיין"],                                say: "עֲדַיִין" },
+    { en: "take (something) away", part: 1, he: ["לקחת משהו", "לקחת", "להסיר"],           say: "לָקַחַת מַשֶׁהוּ" },
+    { en: "take (something) off",  part: 1, he: ["להוריד", "לפשוט", "להוריד בגד"],        say: "לְהוֹרִיד" },
+    { en: "take a picture",        part: 1, he: ["לצלם", "לצלם תמונה"],                   say: "לְצַלֵם" },
+    { en: "take a train",          part: 1, he: ["לנסוע ברכבת", "לקחת רכבת"],             say: "לִנְסוֹעַ בָּרַכֶּבֶת" },
+    { en: "Take care!",            part: 1, he: ["תשמור על עצמך", "שמור על עצמך"],        say: "תִשְׁמוֹר עַל עַצְמְךָ" },
+    { en: "team",                  part: 1, he: ["קבוצה", "צוות"],                        say: "קְבוּצָה" },
+    { en: "the cold",              part: 1, he: ["הצטננות", "הקור"],                      say: "הִצְטַנְנוּת" },
+    { en: "thousand",              part: 1, he: ["אלף"],                                  say: "אֶלֶף" },
+    { en: "visitor",               part: 1, he: ["מבקר", "מבקרת", "אורח"],                say: "מְבַקֵר" },
+    { en: "welcome",               part: 1, he: ["ברוך הבא", "לקבל בברכה", "בבקשה"],      say: "בָּרוּךְ הַבָּא" },
+    // ===== Parts 4–5 =====
+    { en: "a while",               part: 2, he: ["זמן מה", "קצת זמן"],                    say: "זְמַן מָה" },
+    { en: "against",               part: 2, he: ["נגד"],                                  say: "נֶגֶד" },
+    { en: "all the time",          part: 2, he: ["כל הזמן"],                              say: "כָּל הַזְמַן" },
+    { en: "almost",                part: 2, he: ["כמעט"],                                 say: "כִּמְעַט" },
+    { en: "believe",               part: 2, he: ["להאמין", "מאמין"],                      say: "לְהַאֲמִין" },
+    { en: "both",                  part: 2, he: ["שניהם", "שתיהן", "שני"],                say: "שְׁנֵיהֶם" },
+    { en: "collect",               part: 2, he: ["לאסוף", "אוסף"],                        say: "לֶאֱסוֹף" },
+    { en: "come home",             part: 2, he: ["לחזור הביתה", "להגיע הביתה"],           say: "לַחֲזוֹר הַבַּיְתָה" },
+    { en: "competition",           part: 2, he: ["תחרות"],                                say: "תַחֲרוּת" },
+    { en: "could",                 part: 2, he: ["יכול", "יכולתי", "היה יכול"],           say: "יָכוֹל" },
+    { en: "date",                  part: 2, he: ["תאריך", "פגישה", "דייט"],               say: "תַאֲרִיךְ" },
+    { en: "excellent",             part: 2, he: ["מצוין", "מצויין", "מעולה"],             say: "מְצוּיָן" },
+    { en: "feel well",             part: 2, he: ["להרגיש טוב", "מרגיש טוב"],              say: "לְהַרְגִישׁ טוֹב" },
+    { en: "full",                  part: 2, he: ["מלא", "שבע"],                           say: "מָלֵא" },
+    { en: "get better",            part: 2, he: ["להחלים", "להרגיש יותר טוב", "להשתפר"],  say: "לְהַחְלִים" },
+    { en: "get the flu",           part: 2, he: ["לחטוף שפעת", "לחלות בשפעת"],            say: "לַחֲטוֹף שַׁפַּעַת" },
+    { en: "if",                    part: 2, he: ["אם"],                                   say: "אִם" },
+    { en: "instead",               part: 2, he: ["במקום"],                                say: "בִּמְקוֹם" },
+    { en: "invite",                part: 2, he: ["להזמין (אורחים)", "להזמין", "מזמין"],         say: "לְהַזְמִין אוֹרְחִים" },
+    { en: "keep",                  part: 2, he: ["לשמור", "להחזיק"],                      say: "לִשְׁמוֹר" },
+    { en: "kiss",                  part: 2, he: ["נשיקה", "לנשק"],                        say: "נְשִׁיקָה" },
+    { en: "make a mistake",        part: 2, he: ["לעשות טעות", "לטעות"],                  say: "לַעֲשׂוֹת טָעוּת" },
+    { en: "mean",                  part: 2, he: ["להתכוון", "מתכוון", "משמעות"],          say: "לְהִתְכַּוֵון" },
+    { en: "medical",               part: 2, he: ["רפואי", "רפואית"],                      say: "רְפוּאִי" },
+    { en: "message",               part: 2, he: ["הודעה"],                                say: "הוֹדָעָה" },
+    { en: "miss",                  part: 2, he: ["להתגעגע", "מתגעגע", "לפספס"],           say: "לְהִתְגַעְגֵעַ" },
+    { en: "much",                  part: 2, he: ["הרבה"],                                 say: "הַרְבֵּה" },
+    { en: "nurse",                 part: 2, he: ["אחות", "אח"],                           say: "אָחוֹת" },
+    { en: "only",                  part: 2, he: ["רק"],                                   say: "רַק" },
+    { en: "perfect",               part: 2, he: ["מושלם", "מושלמת"],                      say: "מוּשְׁלָם" },
+    { en: "pocket",                part: 2, he: ["כיס"],                                  say: "כִּיס" },
+    { en: "really",                part: 2, he: ["באמת", "ממש"],                          say: "בֶּאֱמֶת" },
+    { en: "see",                   part: 2, he: ["לראות", "רואה"],                        say: "לִרְאוֹת" },
+    { en: "should",                part: 2, he: ["צריך", "כדאי", "צריכה"],                say: "צָרִיךְ" },
+    { en: "so",                    part: 2, he: ["אז", "כל כך", "לכן"],                   say: "אָז" },
+    { en: "sorry",                 part: 2, he: ["סליחה", "מצטער", "מצטערת"],             say: "סְלִיחָה" },
+    { en: "tasty",                 part: 2, he: ["טעים", "טעימה"],                        say: "טָעִים" },
+    { en: "tell a story",          part: 2, he: ["לספר סיפור"],                           say: "לְסַפֵּר סִיפּוּר" }
+];
+const STORE_KEY = "naama-unit-check-1-v1";
+const FOCUS_KEY = "naama-unit-check-1-focus";
+const PART_KEY  = "naama-unit-check-1-part";
+
+const GAME_NAMES = {
+    he2en: "עברית ← אנגלית", en2he: "אנגלית ← עברית", read: "הקראה",
+    listen: "הכתבה", helisten: "הכתבה מעברית", mix: "הכל מעורבב"
+};
+const ALL_TYPES = ["he2en", "en2he", "read", "listen", "helisten"];
+
+// ===== זיכרון: לכל מילה, בכל סוג שאלה בנפרד =====
+// s = חוזק 0-5 (לבחירה רגילה) · hist = 10 התשובות האחרונות · n = כמה פעמים נשאלה · color = צבע הקושי
+let mem = {};
+try { mem = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { mem = {}; }
+
+function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(mem)); } catch (e) { /* גלישה פרטית: עובד גם בלי שמירה */ }
+}
+
+function rec(word, type) {
+    const k = word.en + "|" + type;
+    const r = mem[k] || (mem[k] = { s: 0, right: 0, wrong: 0 });
+    if (!r.hist) { r.hist = []; r.n = 0; r.color = null; }
+    return r;
+}
+
+// הצבע נקבע מחדש אחרי כל 10 פעמים שהמילה נשאלה, לפי 10 התשובות האחרונות
+function colorOf(hist) {
+    const fail = hist.filter(ok => !ok).length / hist.length;
+    if (fail > 0.7) return "red";
+    if (fail > 0.1) return "yellow";
+    return "green";
+}
+
+function record(word, type, ok) {
+    const r = rec(word, type);
+    if (ok) { r.s = Math.min(5, r.s + 1); r.right++; }
+    else { r.s = Math.max(0, r.s - 2); r.wrong++; }
+    r.hist.push(ok);
+    if (r.hist.length > 10) r.hist.shift();
+    r.n++;
+    if (r.n % 10 === 0) r.color = colorOf(r.hist);
+    save();
+}
+
+// מילה שעוד לא נשאלה 10 פעמים מתחילה בצהוב
+function category(word, type) {
+    const r = mem[word.en + "|" + type];
+    return (r && r.color) || "yellow";
+}
+
+// ===== קול: אנגלית תמיד, עברית רק אם יש במכשיר =====
+const voices = { en: null, he: null };
+function pickVoices() {
+    const vs = speechSynthesis.getVoices();
+    voices.en = vs.find(v => /en[-_]US/i.test(v.lang) && /female|samantha|zira|google/i.test(v.name))
+        || vs.find(v => /en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
+    voices.he = vs.find(v => /^(he|iw)/i.test(v.lang)) || null;
+    updateHebrewCard();
+}
+
+function types() { return voices.he ? ALL_TYPES : ALL_TYPES.filter(t => t !== "helisten"); }
+
+function updateHebrewCard() {
+    const card = document.querySelector('[data-game="helisten"]');
+    const labVoice = document.getElementById("labVoice");
+    if (labVoice) labVoice.textContent = "קול: " + (voices.he ? voices.he.name : "אין קול עברי במכשיר");
+    if (!card) return;                    // במעבדת ההגייה אין מסך בית
+    card.hidden = !voices.he;
+    // עם 5 כרטיסים "הכל מעורבב" תופס חצי שורה, עם 4 שורה שלמה
+    document.getElementById("mixCard").classList.toggle("wide", !voices.he);
+    if (!document.getElementById("home").hidden) renderWords();
+}
+
+function speak(text, slow, lang) {
+    if (!("speechSynthesis" in window)) { alert("הדפדפן הזה לא יודע להקריא. נסי בכרום."); return; }
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const he = lang === "he";
+    u.lang = he ? "he-IL" : "en-US";
+    const v = he ? voices.he : voices.en;
+    if (v) u.voice = v;
+    u.rate = slow ? 0.6 : 0.9;
+    // הפסקה קצרה אחרי cancel: בלעדיה יש טלפונים שבולעים את ההברה הראשונה
+    setTimeout(() => speechSynthesis.speak(u), 150);
+}
+
+// ===== בחירת שאלה בתרגול רגיל: מילה חלשה עולה יותר =====
+let lastWord = null;
+
+function randomType() { const ts = types(); return ts[Math.floor(Math.random() * ts.length)]; }
+
+function pickWeighted(pool, type) {
+    const cand = pool.length > 1 ? pool.filter(w => w !== lastWord) : pool;
+    const weights = cand.map(w => {
+        const r = mem[w.en + "|" + type];
+        const s = r ? r.s : 1.5;            // מילה שעוד לא נשאלה: באמצע
+        return 1 + (5 - s) * 2;
+    });
+    let x = Math.random() * weights.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < cand.length; i++) { x -= weights[i]; if (x <= 0) return cand[i]; }
+    return cand[cand.length - 1];
+}
+
+// ===== מצב פוקוס: בכל 10 שאלות, יחס קבוע בין הצבעים =====
+const RATIOS = {
+    "red,yellow,green": { red: 6, yellow: 3, green: 1 },
+    "yellow,green":     { yellow: 7, green: 3 },
+    "red,green":        { red: 8, green: 2 },
+    "red,yellow":       { red: 7, yellow: 3 }
+};
+let focusBag = [], focusKey = "";
+
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+}
+
+function pickFocus(pool, gameType) {
+    const ts = gameType === "mix" ? types() : [gameType];
+    const pairs = [];
+    for (const word of pool) for (const type of ts) pairs.push({ word, type, c: category(word, type) });
+    const present = ["red", "yellow", "green"].filter(c => pairs.some(p => p.c === c));
+    const key = present.join(",");
+    // שקית של 10 צבעים; מתמלאת מחדש כשנגמרת או כשהצבעים הקיימים השתנו
+    if (!focusBag.length || key !== focusKey) {
+        focusKey = key;
+        const ratio = RATIOS[key] || { [present[0]]: 10 };
+        focusBag = shuffle(Object.entries(ratio).flatMap(([c, n]) => Array(n).fill(c)));
+    }
+    const c = focusBag.pop();
+    let cand = pairs.filter(p => p.c === c);
+    const notLast = cand.filter(p => p.word !== lastWord);
+    if (notLast.length) cand = notLast;
+    return cand[Math.floor(Math.random() * cand.length)];
+}
+
+// ===== השוואה אות-אות: מראה איפה הטעות =====
+function normEn(s) { return s.trim().toLowerCase().replace(/\s+/g, " "); }
+
+const FINALS = { "ך": "כ", "ם": "מ", "ן": "נ", "ף": "פ", "ץ": "צ" };
+function normHe(s) {
+    return s.trim().replace(/[֑-ׇ"'׳״]/g, "").replace(/\s+/g, " ");
+}
+function looseHe(s) { return normHe(s).replace(/[ךםןףץ]/g, c => FINALS[c]); }
+
+function align(typed, correct) {
+    const a = [...typed], b = [...correct], n = a.length, m = b.length;
+    const d = Array.from({ length: n + 1 }, (_, i) => Array.from({ length: m + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+    for (let i = 1; i <= n; i++)
+        for (let j = 1; j <= m; j++)
+            d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    const ops = [];
+    let i = n, j = m;
+    while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && d[i][j] === d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)) {
+            ops.unshift({ t: a[i - 1] === b[j - 1] ? "ok" : "sub", a: a[i - 1], b: b[j - 1] }); i--; j--;
+        } else if (i > 0 && d[i][j] === d[i - 1][j] + 1) {
+            ops.unshift({ t: "extra", a: a[i - 1] }); i--;
+        } else {
+            ops.unshift({ t: "missing", b: b[j - 1] }); j--;
+        }
+    }
+    return { ops, dist: d[n][m] };
+}
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ch = c => c === " " ? "&nbsp;" : esc(c);
+
+function diffHtml(ops, isEn) {
+    const cls = isEn ? "diff en" : "diff";
+    // תשובה רחוקה מדי: השוואה אות-אות רק מבלבלת, מראים פשוט את שתיהן
+    const okCount = ops.filter(o => o.t === "ok").length;
+    const correctLen = ops.filter(o => o.t !== "extra").length;
+    if (okCount < correctLen / 2) {
+        const typed = ops.filter(o => o.a !== undefined).map(o => o.a).join("");
+        const fixed = ops.filter(o => o.b !== undefined).map(o => o.b).join("");
+        return `<p class="diff-label">מה כתבת:</p><div class="${cls}"><span class="d-extra">${esc(typed)}</span></div>
+                <p class="diff-label">איך נכון:</p><div class="${cls}"><span class="d-ok">${esc(fixed)}</span></div>`;
+    }
+    let typed = "", fixed = "";
+    for (const o of ops) {
+        if (o.t === "ok") { typed += `<span class="d-ok">${ch(o.a)}</span>`; fixed += `<span class="d-ok">${ch(o.b)}</span>`; }
+        if (o.t === "sub") { typed += `<span class="d-wrong">${ch(o.a)}</span>`; fixed += `<span class="d-fix">${ch(o.b)}</span>`; }
+        if (o.t === "extra") { typed += `<span class="d-extra">${ch(o.a)}</span>`; }
+        if (o.t === "missing") { typed += `<span class="d-missing">&nbsp;</span>`; fixed += `<span class="d-fix">${ch(o.b)}</span>`; }
+    }
+    return `<p class="diff-label">מה כתבת:</p><div class="${cls}">${typed || "&nbsp;"}</div>
+            <p class="diff-label">איך נכון:</p><div class="${cls}">${fixed}</div>
+            <p class="legend"><span><span class="d-wrong">&nbsp;א&nbsp;</span> אות לא נכונה</span><span><span class="d-missing">&nbsp;&nbsp;</span> חסרה אות</span><span><span class="d-extra">א</span> אות מיותרת</span></p>`;
+}
+
+// בודק תשובה ומחזיר { ok, html }
+function check(word, type, input) {
+    if (type === "en2he") {
+        const typed = normHe(input);
+        const hit = word.he.find(h => looseHe(h) === looseHe(typed));
+        if (hit) return { ok: true, html: "" };
+        let best = null;
+        for (const h of word.he) { const r = align(typed, normHe(h)); if (!best || r.dist < best.dist) best = r; }
+        return { ok: false, html: diffHtml(best.ops, false) };
+    }
+    const typed = normEn(input), correct = normEn(word.en);
+    if (typed === correct) return { ok: true, html: "" };
+    return { ok: false, html: diffHtml(align(typed, correct).ops, true) };
+}
+
+// ===== מצב המשחק =====
+const $ = id => document.getElementById(id);
+// ===== איזה חלק מהדף פעיל: "1" (Parts 1-3) · "2" (Parts 4-5) · "all" =====
+let part = "1";
+try { part = localStorage.getItem(PART_KEY) || "1"; } catch (e) { /* בלי שמירה */ }
+function activeWords() { return part === "all" ? WORDS : WORDS.filter(w => w.part === +part); }
+
+let mode = "practice", game = "he2en", pool = activeWords();
+let focusOn = false;
+try { focusOn = localStorage.getItem(FOCUS_KEY) === "1"; } catch (e) { /* בלי שמירה */ }
+let q = null;                    // השאלה הנוכחית: { word, type }
+let quizList = [], quizIdx = 0, quizResults = [];
+let answered = false;
+
+function show(id) {
+    for (const s of ["home", "play", "summary"]) $(s).hidden = s !== id;
+    window.scrollTo(0, 0);
+}
+
+function setMode(m) {
+    mode = m;
+    document.querySelectorAll("#modeSwitch button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === m));
+    $("modeHint").textContent = m === "practice"
+        ? (focusOn ? "פוקוס: בכל 10 שאלות, רוב המילים מהאדומות" : "תרגול: מילים שקשות לך יחזרו יותר")
+        : `בוחן: כל ${activeWords().length} המילים פעם אחת, והציון בסוף`;
+    $("focusBtn").hidden = m !== "practice";      // פוקוס פועל רק בתרגול
+}
+
+function setPart(p) {
+    part = p;
+    document.querySelectorAll("#partSwitch button").forEach(b => b.setAttribute("aria-pressed", b.dataset.part === p));
+    try { localStorage.setItem(PART_KEY, p); } catch (e) { /* בלי שמירה */ }
+    $("countLine").textContent = activeWords().length + " מילים לבוחן";
+    renderWords();
+    setMode(mode);
+}
+
+function setFocus(on) {
+    focusOn = on;
+    $("focusBtn").setAttribute("aria-checked", on);
+    try { localStorage.setItem(FOCUS_KEY, on ? "1" : "0"); } catch (e) { /* בלי שמירה */ }
+    setMode(mode);
+}
+
+function start(g, words) {
+    game = g;
+    pool = words || activeWords();
+    focusBag = [];
+    const focusTag = mode === "practice" && focusOn ? "🎯 " : "";
+    $("playTag").textContent = focusTag + (mode === "quiz" ? "📝 בוחן · " : "🏋️ תרגול · ") + GAME_NAMES[g];
+    $("quizBar").hidden = mode !== "quiz";
+    if (mode === "quiz") {
+        quizList = shuffle([...pool]).map(w => ({ word: w, type: g === "mix" ? randomType() : g }));
+        quizIdx = 0; quizResults = [];
+    }
+    show("play");
+    next();
+}
+
+function next() {
+    if (mode === "quiz") {
+        if (quizIdx >= quizList.length) return finishQuiz();
+        q = quizList[quizIdx];
+        $("quizBar").firstElementChild.style.width = (quizIdx / quizList.length * 100) + "%";
+    } else if (focusOn) {
+        q = pickFocus(pool, game);
+    } else {
+        const type = game === "mix" ? randomType() : game;
+        q = { word: pickWeighted(pool, type), type };
+    }
+    lastWord = q.word;
+    answered = false;
+    render();
+}
+
+function render() {
+    const { word, type } = q;
+    const counter = mode === "quiz" ? ` (${quizIdx + 1} מתוך ${quizList.length})` : "";
+    $("feedback").hidden = true;
+    $("nextRow").hidden = true;
+    $("answer").value = "";
+    $("answer").disabled = false;
+    $("checkBtn").disabled = false;
+    $("readMeaning").hidden = true;
+    $("readGood").disabled = $("readBad").disabled = false;
+
+    const isRead = type === "read";
+    const isListen = type === "listen" || type === "helisten";
+    $("typeForm").hidden = isRead;
+    $("readBox").hidden = !isRead;
+    $("speakRow").hidden = !(isListen || isRead);
+    $("qWord").hidden = isListen;
+    $("revealBtn").hidden = type !== "helisten";
+
+    const ans = $("answer");
+    if (type === "he2en") {
+        $("qLabel").textContent = "איך כותבים באנגלית?" + counter;
+        $("qWord").textContent = word.he[0];
+        $("qWord").className = "word";
+        $("answerLabel").textContent = "כתבי באנגלית:";
+        ans.className = "answer en"; ans.lang = "en"; ans.dir = "ltr";
+    } else if (type === "en2he") {
+        $("qLabel").textContent = "מה זה בעברית?" + counter;
+        $("qWord").textContent = word.en;
+        $("qWord").className = "word en";
+        $("answerLabel").textContent = "כתבי בעברית:";
+        ans.className = "answer"; ans.lang = "he"; ans.dir = "rtl";
+    } else if (type === "listen") {
+        $("qLabel").textContent = "הקשיבי וכתבי באנגלית" + counter;
+        $("answerLabel").textContent = "מה שמעת?";
+        ans.className = "answer en"; ans.lang = "en"; ans.dir = "ltr";
+        setTimeout(() => speak(word.en), 300);
+    } else if (type === "helisten") {
+        $("qLabel").textContent = "הקשיבי למילה בעברית, וכתבי אותה באנגלית" + counter;
+        $("answerLabel").textContent = "כתבי באנגלית:";
+        ans.className = "answer en"; ans.lang = "en"; ans.dir = "ltr";
+        setTimeout(() => speak(word.say || word.he[0], false, "he"), 300);
+    } else {
+        $("qLabel").textContent = "קראי בקול" + counter;
+        $("qWord").textContent = word.en;
+        $("qWord").className = "word en";
+    }
+    if (!isRead) setTimeout(() => ans.focus(), 50);
+}
+
+function showFeedback(ok, extraHtml) {
+    const { word } = q;
+    const fb = $("feedback");
+    fb.className = "feedback " + (ok ? "ok" : "no");
+    const meaning = `<p class="meaning"><b dir="ltr">${esc(word.en)}</b> = ${esc(word.he.join(", "))}</p>`;
+    fb.innerHTML = (ok ? `<h3>✅ נכון! כל הכבוד</h3>` : `<h3>❌ כמעט, הנה התיקון</h3>`) + (extraHtml || "") + meaning;
+    fb.hidden = false;
+    $("nextRow").hidden = false;
+    $("nextBtn").focus();
+}
+
+function submitAnswer(ok, html) {
+    if (answered) return;
+    answered = true;
+    record(q.word, q.type, ok);
+    if (mode === "quiz") {
+        quizResults.push({ ...q, ok, html });
+        quizIdx++;
+        next();                            // בבוחן לא מראים תשובה עד הסוף
+    } else {
+        showFeedback(ok, html);
+    }
+}
+
+$("typeForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (answered) { next(); return; }
+    const v = $("answer").value;
+    if (!v.trim()) { $("answer").focus(); return; }
+    const r = check(q.word, q.type, v);
+    $("answer").disabled = true;
+    $("checkBtn").disabled = true;
+    submitAnswer(r.ok, r.html);
+});
+
+$("readGood").addEventListener("click", () => { $("readGood").disabled = $("readBad").disabled = true; submitAnswer(true, ""); });
+$("readBad").addEventListener("click", () => { $("readGood").disabled = $("readBad").disabled = true; submitAnswer(false, ""); });
+
+function replay(slow) {
+    if (q.type === "helisten") speak(q.word.say || q.word.he[0], slow, "he");
+    else speak(q.word.en, slow);
+}
+
+$("speakBtn").addEventListener("click", () => {
+    replay(false);
+    if (q.type === "read") {
+        $("readMeaning").innerHTML = `${esc(q.word.he.join(", "))}`;
+        $("readMeaning").hidden = false;
+    }
+});
+$("slowBtn").addEventListener("click", () => replay(true));
+$("revealBtn").addEventListener("click", () => {
+    $("qWord").textContent = q.word.he[0];
+    $("qWord").className = "word";
+    $("qWord").hidden = false;
+    $("revealBtn").hidden = true;
+    $("answer").focus();
+});
+$("nextBtn").addEventListener("click", next);
+$("backBtn").addEventListener("click", goHome);
+$("homeBtn").addEventListener("click", goHome);
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !$("play").hidden && answered && mode === "practice" && document.activeElement !== $("nextBtn")) next();
+});
+
+function finishQuiz() {
+    $("quizBar").firstElementChild.style.width = "100%";
+    const right = quizResults.filter(r => r.ok).length;
+    const total = quizResults.length;
+    const pct = Math.round(right / total * 100);
+    $("score").textContent = `${right}/${total}`;
+    $("scoreMsg").textContent = pct === 100 ? "🏆 מושלם! את מוכנה לבוחן"
+        : pct >= 80 ? "👏 מצוין! עוד קצת חיזוק לכמה מילים"
+        : pct >= 50 ? "💪 בדרך הנכונה. בואי נתרגל את הטעויות"
+        : "🌱 זו ההתחלה. תרגול הטעויות יעזור הכי הרבה";
+    const wrong = quizResults.filter(r => !r.ok);
+    $("mistakes").innerHTML = wrong.map(r =>
+        `<li><b>${GAME_NAMES[r.type]}</b>: <span dir="ltr">${esc(r.word.en)}</span> = ${esc(r.word.he.join(", "))}${r.html || ""}</li>`
+    ).join("");
+    $("practiceMistakes").hidden = !wrong.length;
+    $("practiceMistakes").onclick = () => {
+        setMode("practice");
+        start(game, [...new Set(wrong.map(r => r.word))]);
+    };
+    show("summary");
+}
+
+function goHome() {
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    renderWords();
+    show("home");
+}
+
+// ===== מסך הבית: נקודה צבעונית לכל מילה בכל סוג שאלה =====
+const COLOR_NAMES = { red: "אדום, צריכה חיזוק", yellow: "צהוב, בדרך", green: "ירוק, חזקה" };
+const TYPE_SHORT = { he2en: "עברית←אנגלית", en2he: "אנגלית←עברית", read: "הקראה", listen: "הכתבה", helisten: "הכתבה מעברית" };
+const RANK = { red: 0, yellow: 1, green: 2 };
+
+function renderWords() {
+    const ts = types();
+    $("dotsLegend").innerHTML = `נקודה לכל סוג שאלה:
+        <span class="dot c-red"></span>קשה
+        <span class="dot c-yellow"></span>בדרך
+        <span class="dot c-green"></span>חזקה
+        <span class="dot c-new"></span>עוד לא 10 פעמים`;
+    const score = w => ts.reduce((a, t) => a + RANK[category(w, t)], 0);
+    const sorted = [...activeWords()].sort((a, b) => score(a) - score(b));
+    $("wordList").innerHTML = sorted.map(w => {
+        const dots = ts.map(t => {
+            const r = mem[w.en + "|" + t];
+            const c = r && r.color;
+            const label = `${TYPE_SHORT[t]}: ${c ? COLOR_NAMES[c] : "עוד לא נשאלה 10 פעמים"}`;
+            return `<span class="dot ${c ? "c-" + c : "c-new"}" role="img" aria-label="${label}" title="${label}"></span>`;
+        }).join("");
+        return `<li><span class="en">${esc(w.en)}</span><span>${esc(w.he[0])}</span><span class="dots">${dots}</span></li>`;
+    }).join("");
+}
+
+document.querySelectorAll("#modeSwitch button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
+document.querySelectorAll("#partSwitch button").forEach(b => b.addEventListener("click", () => setPart(b.dataset.part)));
+document.querySelectorAll(".game").forEach(b => b.addEventListener("click", () => start(b.dataset.game)));
+$("focusBtn").addEventListener("click", () => setFocus(!focusOn));
+$("resetBtn").addEventListener("click", () => {
+    if (confirm("לאפס את כל הזיכרון של המילים?")) { mem = {}; save(); renderWords(); }
+});
+
+setFocus(focusOn);
+setMode("practice");
+if ("speechSynthesis" in window) { pickVoices(); speechSynthesis.onvoiceschanged = pickVoices; }
+setPart(part);
+
+// ===== מעבדת הגייה: index.html?lab מציג כמה כתיבים לכל מילה, כדי לבחור מה נשמע נכון במכשיר =====
+const LAB = {
+    "הצטננות": ["הִצְטַנְנוּת", "הצטננות", "הִצְטַנְּנוּת"],
+    "מצוין": ["מְצוּיָן", "מצוין", "מְצוּיָין"],
+    "להתכוון": ["לְהִתְכַּוֵון", "להתכוון", "לְהִתְכַּוֵּן"],
+    "שפעת": ["שַׁפַּעַת", "שפעת"],
+    "סיבה": ["סִיבָּה", "סיבה", "סִבָּה"],
+    "להתגעגע": ["לְהִתְגַעְגֵעַ", "להתגעגע"]
+};
+if (new URLSearchParams(location.search).has("lab")) {
+    document.querySelector(".wrap").innerHTML = "<h1>מעבדת הגייה</h1>" +
+        Object.entries(LAB).map(([w, vs]) => `<h2>${w}</h2><div class="row">` +
+            vs.map((v, i) => `<button class="btn light" type="button" data-say="${v}">${i + 1} 🔊</button>`).join("") +
+            "</div>").join("") +
+        `<p class="center muted" id="labVoice">קול: ${voices.he ? esc(voices.he.name) : "טוען..."}</p>`;
+    document.querySelectorAll("[data-say]").forEach(b => b.addEventListener("click", () => speak(b.dataset.say, false, "he")));
+}
+</script>
+</body>
+</html>
